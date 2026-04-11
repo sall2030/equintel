@@ -22,6 +22,14 @@ def _safe_div(a, b, default=np.nan):
         return default
 
 
+def _safe_float(val, default=np.nan):
+    try:
+        s = str(val).strip()
+        return float(s) if s else default
+    except (ValueError, TypeError):
+        return default
+
+
 def _win_rate(sub: pd.DataFrame, col_filter=None) -> float:
     """Win rate within a filtered slice of historical rows."""
     if col_filter is not None:
@@ -199,7 +207,10 @@ def build_features(df: pd.DataFrame, show_progress: bool = True) -> pd.DataFrame
         t_feats = lookup.trainer_features(row.trainer, row.date)
 
         # Class as numeric (1=highest, 7=lowest in UK flat)
-        class_val = pd.to_numeric(str(row.class_).replace("Class ", "").strip(), errors="coerce") if hasattr(row, "class_") else np.nan
+        if hasattr(row, "class_") and pd.notna(row.class_):
+            class_val = _safe_float(str(row.class_).replace("Class ", "").strip())
+        else:
+            class_val = np.nan
 
         # Class change from last run
         class_change = np.nan
@@ -220,7 +231,7 @@ def build_features(df: pd.DataFrame, show_progress: bool = True) -> pd.DataFrame
             "going_num": row.going_num if hasattr(row, "going_num") else np.nan,
             "field_size": float(row.ran) if pd.notna(row.ran) else np.nan,
             "race_class": float(class_val) if pd.notna(class_val) else np.nan,
-            "prize": float(str(row.prize).replace(",", "").replace("£", "").replace("€", "")) if hasattr(row, "prize") and pd.notna(row.prize) else np.nan,
+            "prize": _safe_float(str(row.prize).replace(",", "").replace("£", "").replace("€", "")) if hasattr(row, "prize") and pd.notna(row.prize) else np.nan,
 
             # Runner-level features
             "age": float(row.age) if pd.notna(row.age) else np.nan,

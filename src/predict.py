@@ -61,7 +61,8 @@ def predict_race(
         j = lookup.jockey_features(runner.get("jockey", ""), race_date)
         t = lookup.trainer_features(runner.get("trainer", ""), race_date)
 
-        class_val = float(race_meta.get("race_class", np.nan)) if race_meta.get("race_class") else np.nan
+        class_raw = race_meta.get("race_class")
+        class_val = float(class_raw) if class_raw is not None else np.nan
         class_change = np.nan
         if pd.notna(class_val) and pd.notna(h.get("class_last_run")):
             class_change = class_val - h["class_last_run"]
