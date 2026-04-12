@@ -10,3 +10,7 @@ dist/
 build/
 .pytest_cache/
 notebooks/.ipynb_checkpoints/
+.claude
+.vscode
+CLAUDE.md
+graphify-out

@@ -1,4 +1,4 @@
-# racecard-ai
+# Equintel
 
 Horse racing prediction system using XGBoost. Predicts win/place probability for each runner and identifies value bets by comparing model fair odds to bookmaker odds.
 
@@ -107,7 +107,7 @@ Dashing Star  win       7.0          5.5        18.3        27.8      6.2
 ## Project structure
 
 ```
-racecard-ai/
+equintel/
 ├── data/                   # gitignored — put raceform.db here
 ├── models/                 # trained model artifacts (gitignored)
 ├── src/

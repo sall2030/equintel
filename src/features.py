@@ -151,7 +151,7 @@ class FormLookup:
             "avg_last3_pos": avg_last3,
             "last_sp_decimal": h["sp_decimal"].iloc[-1] if "sp_decimal" in h.columns else np.nan,
             "avg_sp_last3": _avg_sp(h, n=3),
-            "class_last_run": float(h["class"].iloc[-1]) if "class" in h.columns and pd.notna(h["class"].iloc[-1]) else np.nan,
+            "class_last_run": _safe_float(str(h["class"].iloc[-1]).replace("Class ", "")) if "class" in h.columns and pd.notna(h["class"].iloc[-1]) else np.nan,
         }
 
     def jockey_features(self, jockey, date):
