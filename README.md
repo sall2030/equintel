@@ -2,13 +2,15 @@
 
 Horse racing prediction system using XGBoost. Predicts win/place probability for each runner and identifies value bets by comparing model fair odds to bookmaker odds.
 
+**Saudi adaptation in progress** — see `docs/SAUDI_ADAPTATION.md` and `src/saudi_loader.py` for JCSA / Riyadh / Taif data sources and loader skeleton.
+
 ## How it works
 
-1. **Historical data** — Kaggle SQLite dataset (~466 MB, UK/Ireland 2015-2026)
-2. **Feature engineering** — Form ratings, jockey/trainer stats, going preference, market implied probability, draw position, days since last run, and more
-3. **Model** — Two calibrated XGBoost classifiers: one for win, one for place
-4. **Live inference** — The Racing API supplies today's racecards
-5. **Value detection** — Edge = (model probability × bookie odds) − 1; flag where edge > threshold
+1. **Historical data** — Kaggle SQLite dataset (~466 MB, UK/Ireland 2015-2026). Saudi path uses structured JCSA results (CSV/JSON) or commercial APIs.
+2. **Feature engineering** — Form ratings, jockey/trainer stats, going preference, market implied probability, draw position, days since last run, and more. Saudi extensions: surface, local-bred, temperature.
+3. **Model** — Two calibrated XGBoost classifiers: one for win, one for place.
+4. **Live inference** — The Racing API (UK) or future Saudi card source.
+5. **Value detection** — Edge = (model probability × bookie odds) − 1; flag where edge > threshold (research mode).
 
 ## Quickstart
 
@@ -20,6 +22,7 @@ pip install -r requirements.txt
 
 ### 2. Get the historical data
 
+**UK/Ireland:**
 Download from Kaggle (free account required):
 [Horse Racing results - UK/Ireland 2015-2026](https://www.kaggle.com/datasets/deltaromeo/horse-racing-results-ukireland-2015-2025)
 
@@ -29,7 +32,10 @@ Extract `raceform.db` into the `data/` directory:
 data/raceform.db
 ```
 
-### 3. Set up The Racing API
+**Saudi:**
+See `docs/SAUDI_ADAPTATION.md`. Use `src/saudi_loader.py` with a normalized CSV of JCSA results.
+
+### 3. Set up The Racing API (UK path)
 
 Sign up for a free account at [theracingapi.com](https://www.theracingapi.com), then:
 
@@ -110,13 +116,16 @@ Dashing Star  win       7.0          5.5        18.3        27.8      6.2
 equintel/
 ├── data/                   # gitignored — put raceform.db here
 ├── models/                 # trained model artifacts (gitignored)
+├── docs/
+│   └── SAUDI_ADAPTATION.md   # Saudi data sources and adaptation notes
 ├── src/
 │   ├── data_loader.py      # Load/parse SQLite DB
 │   ├── features.py         # Feature engineering
 │   ├── train.py            # Model training pipeline
 │   ├── predict.py          # Inference for a single racecard
 │   ├── api_client.py       # The Racing API wrapper
-│   └── value.py            # Value bet identification
+│   ├── value.py            # Value bet identification
+│   └── saudi_loader.py     # Saudi JCSA results loader skeleton
 ├── scripts/
 │   ├── build_features.py   # CLI: compute feature dataset
 │   ├── train_model.py      # CLI: train models
@@ -131,3 +140,4 @@ equintel/
 - The market (SP) is a strong predictor — the model finds edge by combining it with form features the market doesn't fully price in
 - Use half-Kelly or smaller stakes; the Kelly Criterion assumes perfect probability estimates
 - This is for research and educational purposes
+- Saudi path prioritizes official JCSA sources and evidence-style records over pure betting output
