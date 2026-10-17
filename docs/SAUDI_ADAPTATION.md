@@ -19,24 +19,31 @@ Adapting the UK/Ireland XGBoost pipeline for Saudi racing (JCSA — Riyadh King 
 1. Download latest season program and racecards from jcsa.sa.
 2. Scrape or manually structure past results from `https://jcsa.sa/en/races/` (or use Podium if licensed).
 3. Normalize into the same schema expected by `src/data_loader.py` / `src/features.py` (date, horse, jockey, trainer, course, dist_f, going, ran, pos, sp_decimal, etc.).
-4. Add Saudi-specific flags: `surface` (Dirt/Turf), `local_bred`, `temperature`, `international_runner`.
+4. Load via `src/saudi_loader.py` — it automatically calls `add_saudi_features()`.
 
-## Saudi-Specific Feature Ideas
+## Implemented Saudi-Specific Features (`src/saudi_features.py`)
 
-- Surface preference (most Riyadh/Taif racing is dirt).
-- Local vs international jockey/trainer performance split.
-- Days since last Saudi run vs international.
-- Track bias (King Abdulaziz vs King Khalid).
-- Prize money relative to class.
-- Weather / temperature impact (common in Gulf).
+| Feature | Description |
+|---------|-------------|
+| `surface_dirt` | 1 if dirt, 0 otherwise (default 1 for most JCSA) |
+| `is_riyadh` / `is_taif` | Track flags |
+| `local_bred_flag` | Local-bred indicator |
+| `temperature_c` | Race-day temperature (when available) |
+| `horse_saudi_runs` | Prior Saudi starts for the horse |
+| `horse_saudi_win_rate` | Expanding win rate on Saudi tracks only |
+| `days_since_last_saudi_run` | Days since last Saudi start |
+| `international_runner` | Heuristic: fewer than 3 prior Saudi runs |
+| `jockey_saudi_win_rate_90d` / `trainer_saudi_win_rate_90d` | Placeholders for 90-day Saudi splits |
+
+These are added automatically when `load_saudi_csv(..., add_features=True)` (default).
 
 ## Next Implementation Steps
 
-- `src/saudi_loader.py` — load structured Saudi CSV/JSON and map to the internal DataFrame.
 - Optional scraper for jcsa.sa results pages.
+- Full expanding-window rates for jockey/trainer Saudi form.
 - Dual-model option: UK base + Saudi fine-tune, or separate Saudi model once enough history accumulates.
 - Keep value detection optional (research mode; no public tips).
 
 ## Status
 
-Skeleton added. Historical volume is lower than UK; start with recent seasons + Saudi Cup history, then expand.
+Saudi feature layer added and wired into the loader. Historical volume is still lower than UK; start with recent seasons + Saudi Cup history, then expand.
